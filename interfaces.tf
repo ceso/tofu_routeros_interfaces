@@ -67,7 +67,7 @@ resource "routeros_interface_ethernet" "eth" {
 # (package) detection/installation
 # ------------------------------------------
 resource "null_resource" "download_wifi_npk" {
-  count = var.configure_wlan_interfaces.enable_wlan && local.install_wifi_package ? 1 : 0
+  count = var.verify_wifi_interfaces_present_install && local.install_wifi_package ? 1 : 0
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -77,7 +77,7 @@ resource "null_resource" "download_wifi_npk" {
   }
 }
 resource "null_resource" "upload_wifi_npk" {
-  count = var.configure_wlan_interfaces.enable_wlan && local.install_wifi_package ? 1 : 0
+  count = var.verify_wifi_interfaces_present_install && local.install_wifi_package ? 1 : 0
 
   provisioner "local-exec" {
     command = "scp -i ${var.admin_user_credentials.name} \"/tmp/routeros_packages/${local.wifi_npk_name}\" ${var.admin_user_credentials.ssh_key}@${var.device_mgmt_ip}:/${local.wifi_npk_name}"
@@ -86,7 +86,7 @@ resource "null_resource" "upload_wifi_npk" {
   depends_on = [null_resource.download_wifi_npk]
 }
 resource "null_resource" "install_wifi_npk" {
-  count = var.configure_wlan_interfaces.enable_wlan && local.install_wifi_package ? 1 : 0
+  count = var.verify_wifi_interfaces_present_install && local.install_wifi_package ? 1 : 0
 
   provisioner "local-exec" {
     command = <<-EOT

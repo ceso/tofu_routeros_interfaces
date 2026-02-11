@@ -35,6 +35,7 @@ variable "wan_pppoe_credentials" {
     password = optional(string)
   })
   sensitive = true
+  default   = {}
 }
 
 # ------------------------------------------
