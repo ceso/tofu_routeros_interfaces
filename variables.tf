@@ -106,7 +106,7 @@ variable "ethernet_interfaces" {
     vlan = optional(object({
       role     = string
       tagged   = optional(list(string))
-      untagged = optional(string)
+      untagged = optional(list(string))
     }))
     wan = optional(object({
       connection_type     = optional(string, "dhcp")
