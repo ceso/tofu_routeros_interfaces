@@ -30,10 +30,11 @@ variable "device_mode" {
   default     = "router"
 
   validation {
-    condition = alltrue([
-      (contains([local.device_mode_router, local.device_mode_switch], var.device_mode))
-    ])
-    error_message = "Invalid 'device_mode' configuration: mode can must be either 'router' or 'switch'"
+    condition = contains([
+      local.device_mode_router,
+      local.device_mode_switch      
+    ], var.device_mode)
+    error_message = "'device_mode' must be one of router or switch"
   }
 }
 
