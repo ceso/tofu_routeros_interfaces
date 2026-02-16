@@ -39,7 +39,7 @@ locals {
   # WAN
   # ------------------------------------------
   wan_interface_nic = one([for k, iface in var.ethernet_interfaces : k if try(iface.is_wan, false)])
-  wan_settings      = var.ethernet_interfaces[local.wan_interface_nic].wan
+  wan_settings      = local.wan_interface_nic != null ? var.ethernet_interfaces[local.wan_interface_nic].wan : null
 
   # ------------------------------------------
   # Ethernet Interfaces
