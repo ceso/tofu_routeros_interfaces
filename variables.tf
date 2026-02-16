@@ -24,6 +24,18 @@ variable "verify_wifi_interfaces_present_install" {
   type        = bool
   default     = false
 }
+variable "device_mode" {
+  description = "Whether the device is being configured as a router or a switch"
+  type        = string
+  default     = "router"
+
+  validation {
+    condition = alltrue([
+      (contains([local.device_mode_router, local.device_mode_switch], var.device_mode))
+    ])
+    error_message = "Invalid 'device_mode' configuration: mode can must be either 'router' or 'switch'"
+  }
+}
 
 # ------------------------------------------
 # WAN - PPPoE
@@ -131,8 +143,8 @@ variable "ethernet_interfaces" {
     "ether5" = { comment = "Disabled", disabled = true }
     "ether6" = { comment = "Disabled", disabled = true }
     "ether7" = { comment = "Disabled", disabled = true }
-    "ether8" = { comment = "RED_IOT Access", vlan = { role = "access_port", untagged = "RED_IOT" }, mtu = { mtu = 1500 } }
-    "sfp1"   = { comment = "Trunk Port SFP+", vlan = { role = "trunk_port", tagged = ["BLUE_OFFICE", "GREEN_TRUSTED"], untagged = "BLACKHOLE" } }
+    "ether8" = { comment = "RED_IOT Access", vlan = { role = "access_port", untagged = ["RED_IOT"] }, mtu = { mtu = 1500 } }
+    "sfp1"   = { comment = "Trunk Port SFP+", vlan = { role = "trunk_port", tagged = ["BLUE_OFFICE", "GREEN_TRUSTED"], untagged = ["BLACKHOLE"] } }
   }
   # TODO: Add validation blocks to check
   # * if 'is_wan' is true, only dhcp or pppoe accepted as connection_type (ideally is always required but enforce values)

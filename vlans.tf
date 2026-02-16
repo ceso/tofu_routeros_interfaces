@@ -55,7 +55,7 @@ resource "routeros_interface_vlan" "interface_vlan" {
 # IP Services
 # ------------------------------------------
 resource "routeros_ip_address" "vlan_address" {
-  for_each = var.configure_vlans ? local.vlans_rendered : {}
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router ? local.vlans_rendered : {}
 
   address   = lookup(each.value, "cidr", null)
   interface = lookup(each.value, "name", "")
@@ -63,7 +63,7 @@ resource "routeros_ip_address" "vlan_address" {
   depends_on = [routeros_interface_vlan.interface_vlan]
 }
 resource "routeros_ip_pool" "vlan_pool_addr" {
-  for_each = var.configure_vlans ? {
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router ? {
     for vlan_key, vlan in local.vlans_rendered : vlan_key => vlan if lookup(vlan, "dhcp", {}).enabled
   } : {}
 
@@ -71,7 +71,7 @@ resource "routeros_ip_pool" "vlan_pool_addr" {
   ranges = [lookup(each.value.dhcp.config, "pool_range", "0.0.0.0-0.0.0.0")]
 }
 resource "routeros_ip_dhcp_server" "vlan_dhcp_server" {
-  for_each = var.configure_vlans ? {
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router ? {
     for vlan_key, vlan in local.vlans_rendered : vlan_key => vlan if lookup(vlan, "dhcp", {}).enabled
   } : {}
 
@@ -85,7 +85,7 @@ resource "routeros_ip_dhcp_server" "vlan_dhcp_server" {
   ]
 }
 resource "routeros_ip_dhcp_server_network" "vlan_dhcp_server_network" {
-  for_each = var.configure_vlans ? {
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router ? {
     for vlan_key, vlan in local.vlans_rendered : vlan_key => vlan if lookup(vlan, "dhcp", {}).enabled
   } : {}
 
@@ -101,12 +101,12 @@ resource "routeros_ip_dhcp_server_network" "vlan_dhcp_server_network" {
 # ------------------------------------------
 # VLANs that need DHCP
 resource "routeros_interface_list" "vlan_dhcp_client_list_interface" {
-  count = var.configure_vlans && length(local.vlan_dhcp_clients) > 0 ? 1 : 0
+  count = var.configure_vlans && var.device_mode == local.device_mode_router && length(local.vlan_dhcp_clients) > 0 ? 1 : 0
 
   name = var.lan_dhcp_clients_fw_addr_list_name
 }
 resource "routeros_interface_list_member" "vlan_dhcp_list_member" {
-  for_each = var.configure_vlans && length(local.vlan_dhcp_clients) > 0 ? local.vlan_dhcp_clients : toset([])
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router && length(local.vlan_dhcp_clients) > 0 ? local.vlan_dhcp_clients : toset([])
 
   interface = each.value
   list      = routeros_interface_list.vlan_dhcp_client_list_interface[0].name
@@ -115,12 +115,12 @@ resource "routeros_interface_list_member" "vlan_dhcp_list_member" {
 }
 # VLANs that need Internet access
 resource "routeros_interface_list" "vlan_internet_access_list_interface" {
-  count = var.configure_vlans && length(local.vlan_internet_access) > 0 ? 1 : 0
+  count = var.configure_vlans && var.device_mode == local.device_mode_router && length(local.vlan_internet_access) > 0 ? 1 : 0
 
   name = var.lan_internet_clients_fw_addr_list_name
 }
 resource "routeros_interface_list_member" "vlan_internet_list_member" {
-  for_each = var.configure_vlans && length(local.vlan_internet_access) > 0 ? local.vlan_internet_access : toset([])
+  for_each = var.configure_vlans && var.device_mode == local.device_mode_router && length(local.vlan_internet_access) > 0 ? local.vlan_internet_access : toset([])
 
   interface = each.value
   list      = routeros_interface_list.vlan_internet_access_list_interface[0].name

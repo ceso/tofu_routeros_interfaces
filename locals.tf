@@ -9,6 +9,8 @@ locals {
   frame_type_access_port = "admit-only-untagged-and-priority-tagged"
   wireless_smips_pkg     = "wireless"
   wireless_not_smips_pkg = "wifiwave2"
+  device_mode_router     = "router"
+  device_mode_switch     = "switch"
 
   # ------------------------------------------
   # WLAN
